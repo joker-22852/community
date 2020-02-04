@@ -3,6 +3,8 @@ package com.example.springbootcommunity.controller;
 
 import com.example.springbootcommunity.dto.AccessTokenDTO;
 import com.example.springbootcommunity.dto.GitHubUser;
+import com.example.springbootcommunity.entity.User;
+import com.example.springbootcommunity.mapper.UserMapper;
 import com.example.springbootcommunity.provider.GitHubProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,8 +12,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 public class AuthorizeController {
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Autowired
     private GitHubProvider gitHubProvider;
@@ -24,7 +31,8 @@ public class AuthorizeController {
     private String redirect_uri;
     @GetMapping("/callback")
     public String callback(@RequestParam("name") String code,
-                           @RequestParam("state") String state){
+                           @RequestParam("state") String state,
+                           HttpServletRequest request){
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setCode(code);
         accessTokenDTO.setRedirect_uri(redirect_uri);
@@ -34,8 +42,13 @@ public class AuthorizeController {
         String getaccesstoken = gitHubProvider.getaccesstoken(accessTokenDTO);
         GitHubUser user = gitHubProvider.getUser(getaccesstoken);
         user.setName("joker");
-        System.out.println(user.getName());
-        return "index";
+        User user1 = new User();
+        user1.setName("joker");
+        user1.setGmt_create(System.currentTimeMillis());
+        user1.setGmt_modified(user1.getGmt_create());
+        userMapper.inset(user1);
+        request.getSession().setAttribute("user",user);
+        return "redirect:/";
     }
 }
 
