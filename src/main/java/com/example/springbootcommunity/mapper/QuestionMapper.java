@@ -1,10 +1,7 @@
 package com.example.springbootcommunity.mapper;
 
 import com.example.springbootcommunity.entity.Question;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -16,6 +13,16 @@ public interface QuestionMapper {
 
     @Select("select * from question limit #{offset},#{size}")
     List<Question> list(@Param("offset") Integer offset,@Param("size") Integer size);
+
     @Select("select count(1) from question")
     Integer count();
+
+    @Select("select * from question where creator=#{i} limit #{offset},#{size}")
+    List<Question> list2(@Param("i") Integer i, @Param("offset") Integer offset,@Param("size") Integer size);
+
+    @Select("select * from question where id=#{id} ")
+    Question getbyId(@Param("id") Integer id);
+
+    @Update("update question set view_count=#{view_count} where id=#{id}")
+    void update(@Param("view_count") Integer view_count,@Param("id") Integer id);
 }
